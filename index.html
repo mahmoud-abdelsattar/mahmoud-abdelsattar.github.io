@@ -1,0 +1,692 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mahmoud AbdElsattar | Enterprise Solutions Architect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── TOKENS ─────────────────────────────────────────────────  */
+    :root {
+      --bg: #060a10;
+      --surface: #0d1421;
+      --surface2: #111928;
+      --border: rgba(255,255,255,0.06);
+      --text: #eef2ff;
+      --muted: #6b7a99;
+      --accent: #00d4ff;
+      --accent2: #7c3aed;
+      --accent3: #f59e0b;
+      --glow: rgba(0, 212, 255, 0.15);
+    }
+
+    /* ─── RESET ─────────────────────────────────────────────────── */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      line-height: 1.7;
+      overflow-x: hidden;
+      cursor: none;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    ul { list-style: none; }
+
+    /* ─── CUSTOM CURSOR ─────────────────────────────────────────── */
+    #cursor {
+      position: fixed; top:0; left:0; width:12px; height:12px;
+      background: var(--accent); border-radius: 50%; pointer-events:none;
+      z-index:9999; transform: translate(-50%,-50%);
+      transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
+      mix-blend-mode: screen;
+    }
+    #cursor-ring {
+      position: fixed; top:0; left:0; width:40px; height:40px;
+      border: 1px solid rgba(0,212,255,0.5); border-radius:50%;
+      pointer-events:none; z-index:9998; transform:translate(-50%,-50%);
+      transition: transform 0.15s ease, width 0.3s, height 0.3s;
+    }
+    body:hover #cursor { opacity:1; }
+
+    /* ─── CANVAS BG ─────────────────────────────────────────────── */
+    #bg-canvas {
+      position: fixed; top:0; left:0; width:100%; height:100%;
+      z-index:0; pointer-events:none; opacity:0.4;
+    }
+
+    /* ─── NOISE OVERLAY ─────────────────────────────────────────── */
+    body::before {
+      content:''; position:fixed; inset:0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity:0.35; pointer-events:none; z-index:1;
+    }
+
+    /* ─── NAV ────────────────────────────────────────────────────── */
+    nav {
+      position: fixed; top:0; width:100%; z-index:500;
+      padding: 1.4rem 6%;
+      display: flex; justify-content:space-between; align-items:center;
+      background: rgba(6,10,16,0.7); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.4s;
+    }
+    .logo {
+      font-family: 'Syne', sans-serif; font-weight:800; font-size:1.1rem;
+      letter-spacing:-0.02em; color:var(--text);
+    }
+    .logo span { color: var(--accent); }
+    .nav-links {
+      display:flex; gap:2.5rem;
+    }
+    .nav-links a {
+      font-family: 'DM Mono', monospace; font-size:0.78rem;
+      color: var(--muted); letter-spacing:0.05em;
+      text-transform: uppercase; transition: color 0.3s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content:''; position:absolute; left:0; bottom:-4px;
+      width:0; height:1px; background: var(--accent);
+      transition: width 0.3s;
+    }
+    .nav-links a:hover { color:var(--accent); }
+    .nav-links a:hover::after { width:100%; }
+
+    /* ─── SECTIONS ──────────────────────────────────────────────── */
+    section {
+      position: relative; z-index:10;
+      padding: 7rem 6% 5rem;
+      max-width: 1280px; margin: 0 auto;
+    }
+    .section-label {
+      font-family:'DM Mono', monospace; font-size:0.72rem;
+      color:var(--accent); letter-spacing:0.18em; text-transform:uppercase;
+      margin-bottom:0.8rem; display:block;
+    }
+    h2.section-title {
+      font-family:'Syne', sans-serif; font-size:clamp(2rem, 4vw, 3rem);
+      font-weight:800; line-height:1.1; color:var(--text);
+      margin-bottom:3rem; letter-spacing:-0.03em;
+    }
+
+    /* ─── HERO ──────────────────────────────────────────────────── */
+    #about {
+      min-height:100vh; display:flex; flex-direction:column;
+      justify-content:center; padding-top:10rem;
+    }
+    .hero-inner {
+      display:flex; align-items:center;
+      justify-content:space-between; gap:4rem;
+    }
+    .hero-text { flex:1; }
+
+    /* Profile photo */
+    .hero-photo {
+      flex-shrink:0;
+      opacity:0; animation: fadeUp 0.8s 0.5s ease forwards;
+    }
+    .photo-ring {
+      width:230px; height:230px; border-radius:50%;
+      background:#ffffff;
+      padding:5px;
+      box-shadow: 0 0 0 2px var(--accent), 0 0 50px rgba(0,212,255,0.25);
+      overflow:hidden;
+    }
+    .photo-ring img {
+      width:100%; height:100%; border-radius:50%;
+      object-fit:cover; object-position:center top;
+      display:block;
+    }
+
+    .hero-eyebrow {
+      font-family:'DM Mono', monospace; font-size:0.8rem;
+      color:var(--accent); letter-spacing:0.15em; text-transform:uppercase;
+      margin-bottom:1.5rem; opacity:0;
+      animation: fadeUp 0.8s 0.2s ease forwards;
+    }
+    .hero-name {
+      font-family:'Syne', sans-serif; font-weight:800;
+      font-size: clamp(3rem, 7vw, 6rem);
+      line-height:1.0; letter-spacing:-0.04em;
+      color:var(--text); margin-bottom:1rem;
+      opacity:0; animation: fadeUp 0.8s 0.4s ease forwards;
+    }
+    .hero-name .accent-word {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+    .hero-role {
+      font-family:'DM Mono', monospace; font-size:clamp(0.95rem, 2vw, 1.2rem);
+      color:var(--muted); margin-bottom:2rem;
+      opacity:0; animation: fadeUp 0.8s 0.6s ease forwards;
+      /* Fixed height = 1 line, prevents layout shift on text change */
+      min-height: 2em; display:flex; align-items:center;
+    }
+    /* Typing wrapper: permanent underline, stable width */
+    .typing-wrapper {
+      display:inline-block;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom:2px;
+      min-width:18ch; /* reserve space for longest phrase */
+    }
+    .typing-text { color:var(--accent); }
+    .hero-desc {
+      max-width:560px; color:var(--muted); font-size:1.05rem;
+      line-height:1.8; margin-bottom:3rem;
+      opacity:0; animation: fadeUp 0.8s 0.8s ease forwards;
+    }
+    .hero-cta {
+      display:flex; gap:1rem; flex-wrap:wrap;
+      opacity:0; animation: fadeUp 0.8s 1s ease forwards;
+    }
+    .btn-primary {
+      display:inline-flex; align-items:center; gap:0.5rem;
+      padding:0.9rem 2rem; background:var(--accent);
+      color:#000; font-weight:600; font-family:'Syne',sans-serif;
+      font-size:0.9rem; border-radius:4px; letter-spacing:0.02em;
+      transition: box-shadow 0.3s, transform 0.3s;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 0 30px rgba(0,212,255,0.4);
+      transform: translateY(-2px); color:#000;
+    }
+    .btn-outline {
+      display:inline-flex; align-items:center; gap:0.5rem;
+      padding:0.9rem 2rem; border:1px solid var(--border);
+      color:var(--text); font-weight:500; font-family:'Syne',sans-serif;
+      font-size:0.9rem; border-radius:4px;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .btn-outline:hover {
+      border-color:var(--accent); color:var(--accent);
+      transform:translateY(-2px);
+    }
+    .hero-stats {
+      display:flex; gap:3rem; margin-top:5rem;
+      padding-top:2.5rem; border-top:1px solid var(--border);
+      opacity:0; animation: fadeUp 0.8s 1.2s ease forwards;
+    }
+    .stat-num {
+      font-family:'Syne',sans-serif; font-size:2.2rem;
+      font-weight:800; color:var(--accent); line-height:1;
+      letter-spacing:-0.04em;
+    }
+    .stat-label {
+      font-family:'DM Mono',monospace; font-size:0.72rem;
+      color:var(--muted); letter-spacing:0.08em; text-transform:uppercase;
+      margin-top:0.3rem;
+    }
+
+    /* ─── SCROLL REVEAL ─────────────────────────────────────────── */
+    .reveal {
+      opacity:0; transform:translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+
+    /* ─── EXPERIENCE ────────────────────────────────────────────── */
+    .timeline { display:flex; flex-direction:column; gap:1.5rem; }
+    .tl-item {
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius:8px; padding:2rem 2.5rem;
+      display:grid; grid-template-columns:1fr auto;
+      gap:1rem; align-items:start;
+      transition: transform 0.3s, box-shadow 0.3s, border-left-color 0.3s;
+    }
+    .tl-item:hover {
+      transform:translateX(6px);
+      box-shadow: -6px 0 30px var(--glow);
+      border-left-color:var(--accent);
+    }
+    .tl-item:nth-child(2) { border-left-color:var(--accent2); }
+    .tl-item:nth-child(2):hover { box-shadow: -6px 0 30px rgba(124,58,237,0.2); border-left-color:var(--accent2); }
+    .tl-item:nth-child(3) { border-left-color:var(--accent3); }
+    .tl-item:nth-child(3):hover { box-shadow: -6px 0 30px rgba(245,158,11,0.2); border-left-color:var(--accent3); }
+
+    .tl-role {
+      font-family:'Syne',sans-serif; font-weight:700; font-size:1.15rem;
+      color:var(--text); margin-bottom:0.4rem;
+    }
+    .tl-desc { color:var(--muted); font-size:0.95rem; line-height:1.7; }
+    .tl-date {
+      font-family:'DM Mono',monospace; font-size:0.72rem;
+      color:var(--accent); letter-spacing:0.06em; white-space:nowrap;
+      text-transform:uppercase; margin-top:0.2rem;
+    }
+    .tl-item:nth-child(2) .tl-date { color:var(--accent2); }
+    .tl-item:nth-child(3) .tl-date { color:var(--accent3); }
+
+    /* ─── SKILLS ────────────────────────────────────────────────── */
+    .skills-grid {
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr));
+      gap:1.5rem;
+    }
+    .skill-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:10px; padding:2rem;
+      transition:transform 0.3s, box-shadow 0.3s;
+      position:relative; overflow:hidden;
+    }
+    .skill-card::before {
+      content:''; position:absolute; inset:0;
+      background: radial-gradient(circle at top left, var(--glow), transparent 60%);
+      opacity:0; transition:opacity 0.4s;
+    }
+    .skill-card:hover::before { opacity:1; }
+    .skill-card:hover { transform:translateY(-6px); box-shadow:0 20px 40px rgba(0,0,0,0.4); }
+    .skill-icon {
+      font-size:1.6rem; margin-bottom:1rem;
+    }
+    .skill-title {
+      font-family:'Syne',sans-serif; font-weight:700; font-size:1rem;
+      margin-bottom:1.2rem; color:var(--text);
+    }
+    .tags { display:flex; flex-wrap:wrap; gap:0.5rem; }
+    .tag {
+      font-family:'DM Mono',monospace; font-size:0.72rem;
+      padding:0.3rem 0.75rem; border-radius:3px;
+      background:rgba(0,212,255,0.08); color:var(--accent);
+      border:1px solid rgba(0,212,255,0.15); letter-spacing:0.03em;
+    }
+    .tag.purple { background:rgba(124,58,237,0.08); color:#a78bfa; border-color:rgba(124,58,237,0.2); }
+    .tag.amber { background:rgba(245,158,11,0.08); color:#fbbf24; border-color:rgba(245,158,11,0.2); }
+
+    /* ─── PROJECTS ──────────────────────────────────────────────── */
+    .projects-grid {
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(320px,1fr));
+      gap:1.5rem;
+    }
+    .project-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:10px; padding:2rem;
+      transition:transform 0.3s, box-shadow 0.3s;
+      display:flex; flex-direction:column; gap:1rem;
+    }
+    .project-card:hover { transform:translateY(-6px); box-shadow:0 20px 40px rgba(0,0,0,0.5); }
+    .project-num {
+      font-family:'DM Mono',monospace; font-size:0.72rem;
+      color:var(--accent); letter-spacing:0.1em;
+    }
+    .project-title {
+      font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem;
+      color:var(--text);
+    }
+    .project-desc { color:var(--muted); font-size:0.93rem; line-height:1.7; flex:1; }
+    .project-arrow {
+      display:inline-flex; align-items:center; gap:0.4rem;
+      font-family:'DM Mono',monospace; font-size:0.75rem;
+      color:var(--accent); letter-spacing:0.05em; text-transform:uppercase;
+      transition: gap 0.3s;
+    }
+    .project-card:hover .project-arrow { gap:0.8rem; }
+
+    /* ─── CONTACT ───────────────────────────────────────────────── */
+    #contact { text-align:center; }
+    .contact-box {
+      max-width:600px; margin:0 auto;
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:12px; padding:4rem;
+    }
+    .contact-box p {
+      color:var(--muted); margin-bottom:2.5rem; font-size:1.05rem; line-height:1.8;
+    }
+
+    /* ─── FOOTER ────────────────────────────────────────────────── */
+    footer {
+      position:relative; z-index:10;
+      text-align:center; padding:2.5rem;
+      border-top:1px solid var(--border);
+      font-family:'DM Mono',monospace; font-size:0.75rem; color:var(--muted);
+      letter-spacing:0.05em;
+    }
+
+    /* ─── ANIMATIONS ────────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(24px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* ─── SCROLLBAR ─────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width:4px; }
+    ::-webkit-scrollbar-track { background:var(--bg); }
+    ::-webkit-scrollbar-thumb { background:var(--accent2); border-radius:2px; }
+
+    /* ─── MOBILE ────────────────────────────────────────────────── */
+    @media(max-width:768px){
+      .nav-links { display:none; }
+      .hero-inner { flex-direction:column-reverse; align-items:flex-start; gap:2rem; }
+      .photo-ring { width:150px; height:150px; }
+      .hero-stats { gap:1.5rem; }
+      .tl-item { grid-template-columns:1fr; }
+      .typing-wrapper { min-width:0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom Cursor -->
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- Animated BG canvas -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- ── NAV ─────────────────────────────────────────────────────── -->
+  <nav>
+    <div class="logo">M.<span>Architect</span></div>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── HERO ────────────────────────────────────────────────────── -->
+  <section id="about">
+    <div class="hero-inner">
+      <div class="hero-text">
+        <p class="hero-eyebrow">⬡ Available for Architecture Consulting</p>
+        <h1 class="hero-name">
+          Mahmoud<br/>
+          <span class="accent-word">AbdElsattar.</span>
+        </h1>
+        <p class="hero-role">
+          <span class="typing-wrapper"><span class="typing-text" id="typing"></span></span>
+        </p>
+        <p class="hero-desc">
+          12 years building the backbone of enterprise systems — from writing backend
+          services to governing organisation-wide architecture. I turn complex
+          technology landscapes into coherent, high-performing platforms.
+        </p>
+        <div class="hero-cta">
+          <a href="#contact" class="btn-primary">Get in Touch →</a>
+          <a href="#experience" class="btn-outline">View Journey</a>
+        </div>
+      </div><!-- /.hero-text -->
+      <div class="hero-photo">
+        <div class="photo-ring">
+          <img src="pic.png" alt="Mahmoud AbdElsattar" />
+        </div>
+      </div>
+    </div><!-- /.hero-inner -->
+    <div class="hero-stats">
+      <div>
+        <div class="stat-num">12+</div>
+        <div class="stat-label">Years in IT</div>
+      </div>
+      <div>
+        <div class="stat-num">TOGAF</div>
+        <div class="stat-label">Certified '25</div>
+      </div>
+      <div>
+        <div class="stat-num">3×</div>
+        <div class="stat-label">AWS Targets</div>
+      </div>
+      <div>
+        <div class="stat-num">1</div>
+        <div class="stat-label">Book Authoring</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── EXPERIENCE ───────────────────────────────────────────────── -->
+  <section id="experience">
+    <span class="section-label reveal">Career Journey</span>
+    <h2 class="section-title reveal">Where I've<br/>Been Building.</h2>
+    <div class="timeline">
+
+      <div class="tl-item reveal">
+        <div>
+          <div class="tl-role">Section Head — Enterprise Solution Architecture</div>
+          <div class="tl-desc">
+            Governing enterprise-wide architectural standards, aligning business capabilities
+            with technology roadmaps, and ensuring robust system design across multiple domains.
+            TOGAF certified September 2025.
+          </div>
+        </div>
+        <div class="tl-date">Current</div>
+      </div>
+
+      <div class="tl-item reveal">
+        <div>
+          <div class="tl-role">Team Leader & IT Support Engineer</div>
+          <div class="tl-desc">
+            Led technical teams delivering critical IT solutions. Bridged L3 operational support
+            and core engineering — managing complex incident resolution and system stability
+            across high-throughput environments.
+          </div>
+        </div>
+        <div class="tl-date">2 Years</div>
+      </div>
+
+      <div class="tl-item reveal">
+        <div>
+          <div class="tl-role">Senior & Junior Backend Engineer</div>
+          <div class="tl-desc">
+            Deep hands-on experience building the foundation of enterprise systems. Specialised
+            in the Java ecosystem, microservices architecture, event-driven patterns,
+            and database performance tuning.
+          </div>
+        </div>
+        <div class="tl-date">8 Years</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── SKILLS ───────────────────────────────────────────────────── -->
+  <section id="skills">
+    <span class="section-label reveal">Technical Arsenal</span>
+    <h2 class="section-title reveal">What I<br/>Work With.</h2>
+    <div class="skills-grid">
+
+      <div class="skill-card reveal">
+        <div class="skill-icon">🏛️</div>
+        <div class="skill-title">Architecture & Cloud</div>
+        <div class="tags">
+          <span class="tag">TOGAF</span>
+          <span class="tag">Enterprise Architecture</span>
+          <span class="tag">AWS</span>
+          <span class="tag">Digital Transformation</span>
+        </div>
+      </div>
+
+      <div class="skill-card reveal">
+        <div class="skill-icon">⚙️</div>
+        <div class="skill-title">Backend & Systems</div>
+        <div class="tags">
+          <span class="tag purple">Java</span>
+          <span class="tag purple">Spring Boot</span>
+          <span class="tag purple">Microservices</span>
+          <span class="tag purple">Kafka</span>
+        </div>
+      </div>
+
+      <div class="skill-card reveal">
+        <div class="skill-icon">📡</div>
+        <div class="skill-title">Operations & BSS</div>
+        <div class="tags">
+          <span class="tag amber">L3 Support</span>
+          <span class="tag amber">Incident Mgmt</span>
+          <span class="tag amber">High-Throughput</span>
+          <span class="tag amber">Distributed Systems</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── PROJECTS ─────────────────────────────────────────────────── -->
+  <section id="projects">
+    <span class="section-label reveal">Active Pursuits</span>
+    <h2 class="section-title reveal">What I'm<br/>Building Now.</h2>
+    <div class="projects-grid">
+
+      <div class="project-card reveal">
+        <div class="project-num">01 / Book</div>
+        <div class="project-title">"The Practical Enterprise Architect"</div>
+        <div class="project-desc">
+          A comprehensive handbook bridging architectural theory and real-world enterprise application.
+          Aimed at beginner and mid-level architects. Co-authored with Ahmed Mourad.
+        </div>
+        <span class="project-arrow">Writing in progress →</span>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-num">02 / Certification</div>
+        <div class="project-title">AWS Triple Certification Track</div>
+        <div class="project-desc">
+          Pursuing advanced cloud-native mastery across three AWS certifications:
+          Solutions Architect, DevOps Engineer, and Machine Learning Specialty.
+        </div>
+        <span class="project-arrow">In active study →</span>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-num">03 / Game Dev</div>
+        <div class="project-title">Indie Game — Godot Engine</div>
+        <div class="project-desc">
+          Developing an independent game using the Godot engine, with plans for
+          a commercial release on Steam. Engineering meets creativity.
+        </div>
+        <span class="project-arrow">Prototype phase →</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── CONTACT ──────────────────────────────────────────────────── -->
+  <section id="contact">
+    <div class="contact-box reveal">
+      <span class="section-label" style="display:block;text-align:center;margin-bottom:1rem;">Let's Connect</span>
+      <h2 class="section-title" style="text-align:center;margin-bottom:1rem;">Have a project<br/>in mind?</h2>
+      <p>
+        Always open to discussing enterprise architecture, cloud strategy,
+        or new opportunities. Let's build something remarkable together.
+      </p>
+      <a href="mailto:your.email@example.com" class="btn-primary" style="display:inline-flex;">
+        Say Hello →
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <p>Designed & Built for Mahmoud AbdElsattar &copy; 2026 — Cairo, Egypt</p>
+  </footer>
+
+  <!-- ── SCRIPTS ───────────────────────────────────────────────────── -->
+  <script>
+    /* ── Cursor ── */
+    const cur = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-ring');
+    let mx=0, my=0, rx=0, ry=0;
+    document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+    function animCursor(){
+      rx += (mx-rx)*0.12; ry += (my-ry)*0.12;
+      cur.style.left = mx+'px'; cur.style.top = my+'px';
+      ring.style.left = rx+'px'; ring.style.top = ry+'px';
+      requestAnimationFrame(animCursor);
+    }
+    animCursor();
+    document.querySelectorAll('a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cur.style.width='20px'; cur.style.height='20px';
+        ring.style.width='60px'; ring.style.height='60px';
+      });
+      el.addEventListener('mouseleave', () => {
+        cur.style.width='12px'; cur.style.height='12px';
+        ring.style.width='40px'; ring.style.height='40px';
+      });
+    });
+
+    /* ── Canvas BG — Grid with floating dots ── */
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, dots=[];
+    function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+    resize(); window.addEventListener('resize', resize);
+
+    for(let i=0;i<60;i++){
+      dots.push({
+        x: Math.random()*2000, y:Math.random()*2000,
+        vx:(Math.random()-.5)*0.3, vy:(Math.random()-.5)*0.3,
+        r:Math.random()*1.5+0.5, a:Math.random()
+      });
+    }
+    function drawBg(){
+      ctx.clearRect(0,0,W,H);
+      // Grid
+      ctx.strokeStyle='rgba(0,212,255,0.04)';
+      ctx.lineWidth=1;
+      const gs=80;
+      for(let x=0;x<W;x+=gs){
+        ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke();
+      }
+      for(let y=0;y<H;y+=gs){
+        ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+      }
+      // Dots + lines
+      dots.forEach((d,i)=>{
+        d.x+=d.vx; d.y+=d.vy;
+        if(d.x<0||d.x>W) d.vx*=-1;
+        if(d.y<0||d.y>H) d.vy*=-1;
+        ctx.beginPath();
+        ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+        ctx.fillStyle=`rgba(0,212,255,${0.3+d.a*0.3})`;
+        ctx.fill();
+        dots.forEach((d2,j)=>{
+          if(j<=i) return;
+          const dx=d.x-d2.x, dy=d.y-d2.y;
+          const dist=Math.sqrt(dx*dx+dy*dy);
+          if(dist<120){
+            ctx.beginPath();
+            ctx.moveTo(d.x,d.y); ctx.lineTo(d2.x,d2.y);
+            ctx.strokeStyle=`rgba(0,212,255,${0.06*(1-dist/120)})`;
+            ctx.lineWidth=0.5;
+            ctx.stroke();
+          }
+        });
+      });
+      requestAnimationFrame(drawBg);
+    }
+    drawBg();
+
+    /* ── Typing effect ── */
+    const roles=['Enterprise Solutions Architect.','System Designer.','Cloud Strategist.','Digital Transformer.'];
+    let ri=0, ci=0, deleting=false;
+    const el=document.getElementById('typing');
+    function type(){
+      const cur=roles[ri];
+      if(!deleting){
+        el.textContent=cur.slice(0,ci+1); ci++;
+        if(ci===cur.length){ deleting=true; setTimeout(type,1600); return; }
+      } else {
+        el.textContent=cur.slice(0,ci-1); ci--;
+        if(ci===0){ deleting=false; ri=(ri+1)%roles.length; }
+      }
+      setTimeout(type, deleting?40:80);
+    }
+    type();
+
+    /* ── Scroll reveal ── */
+    const obs = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+    },{threshold:0.1});
+    document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+    /* ── Stagger reveals ── */
+    document.querySelectorAll('.tl-item, .skill-card, .project-card').forEach((el,i)=>{
+      el.style.transitionDelay = (i*0.1)+'s';
+    });
+  </script>
+</body>
+</html>
