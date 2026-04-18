@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
-    /* ─── TOKENS ───────────────────────────────────────────────── */
+    /* ─── TOKENS ─────────────────────────────────────────────────  */
     :root {
       --bg: #060a10;
       --surface: #0d1421;
@@ -31,10 +31,26 @@
       font-family: 'DM Sans', sans-serif;
       line-height: 1.7;
       overflow-x: hidden;
-      cursor: default;
+      cursor: none;
     }
     a { color: var(--accent); text-decoration: none; }
     ul { list-style: none; }
+
+    /* ─── CUSTOM CURSOR ─────────────────────────────────────────── */
+    #cursor {
+      position: fixed; top:0; left:0; width:12px; height:12px;
+      background: var(--accent); border-radius: 50%; pointer-events:none;
+      z-index:9999; transform: translate(-50%,-50%);
+      transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
+      mix-blend-mode: screen;
+    }
+    #cursor-ring {
+      position: fixed; top:0; left:0; width:40px; height:40px;
+      border: 1px solid rgba(0,212,255,0.5); border-radius:50%;
+      pointer-events:none; z-index:9998; transform:translate(-50%,-50%);
+      transition: transform 0.15s ease, width 0.3s, height 0.3s;
+    }
+    body:hover #cursor { opacity:1; }
 
     /* ─── CANVAS BG ─────────────────────────────────────────────── */
     #bg-canvas {
@@ -337,87 +353,6 @@
       to   { opacity:1; transform:translateY(0); }
     }
 
-    /* ─── NAV CV BUTTON ─────────────────────────────────────────── */
-    .nav-cv {
-      font-family:'DM Mono', monospace; font-size:0.75rem;
-      color: var(--accent); letter-spacing:0.08em; text-transform:uppercase;
-      border:1px solid rgba(0,212,255,0.4); border-radius:3px;
-      padding:0.4rem 0.9rem;
-      transition: background 0.3s, color 0.3s;
-      cursor:pointer;
-    }
-    .nav-cv:hover { background:var(--accent); color:#000; }
-
-    /* ─── CONTACT MODAL ─────────────────────────────────────────── */
-    .modal-overlay {
-      position:fixed; inset:0; z-index:2000;
-      background:rgba(6,10,16,0.85); backdrop-filter:blur(12px);
-      display:flex; align-items:center; justify-content:center;
-      opacity:0; pointer-events:none;
-      transition:opacity 0.3s ease;
-    }
-    .modal-overlay.open { opacity:1; pointer-events:all; }
-    .modal {
-      background:var(--surface); border:1px solid rgba(0,212,255,0.18);
-      border-radius:12px; padding:3rem; width:min(520px, 90vw);
-      box-shadow:0 30px 80px rgba(0,0,0,0.6);
-      transform:translateY(24px); transition:transform 0.3s ease;
-      position:relative;
-    }
-    .modal-overlay.open .modal { transform:translateY(0); }
-    .modal-title {
-      font-family:'Syne',sans-serif; font-weight:800; font-size:1.5rem;
-      margin-bottom:0.4rem; color:var(--text);
-    }
-    .modal-sub {
-      font-family:'DM Mono',monospace; font-size:0.75rem;
-      color:var(--accent); letter-spacing:0.1em; text-transform:uppercase;
-      margin-bottom:2rem;
-    }
-    .modal-close {
-      position:absolute; top:1.2rem; right:1.4rem;
-      background:none; border:none; color:var(--muted); font-size:1.4rem;
-      cursor:pointer; line-height:1; transition:color 0.2s;
-    }
-    .modal-close:hover { color:var(--text); }
-    .form-group { margin-bottom:1.2rem; }
-    .form-group label {
-      display:block; font-family:'DM Mono',monospace; font-size:0.72rem;
-      color:var(--muted); letter-spacing:0.1em; text-transform:uppercase;
-      margin-bottom:0.4rem;
-    }
-    .form-group input, .form-group textarea {
-      width:100%; background:rgba(255,255,255,0.04);
-      border:1px solid var(--border); border-radius:5px;
-      padding:0.75rem 1rem; color:var(--text);
-      font-family:'DM Sans',sans-serif; font-size:0.95rem;
-      outline:none; transition:border-color 0.25s;
-      resize:vertical;
-    }
-    .form-group input:focus, .form-group textarea:focus {
-      border-color:var(--accent);
-    }
-    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
-    .form-submit {
-      width:100%; padding:0.9rem; background:var(--accent);
-      color:#000; font-weight:700; font-family:'Syne',sans-serif;
-      font-size:0.95rem; border:none; border-radius:5px;
-      cursor:pointer; margin-top:0.5rem;
-      transition: box-shadow 0.3s, transform 0.2s;
-    }
-    .form-submit:hover {
-      box-shadow:0 0 25px rgba(0,212,255,0.4);
-      transform:translateY(-1px);
-    }
-    .form-success {
-      display:none; text-align:center; padding:1.5rem 0;
-    }
-    .form-success .check { font-size:3rem; margin-bottom:0.8rem; }
-    .form-success p {
-      font-family:'Syne',sans-serif; font-size:1.1rem;
-      color:var(--accent); font-weight:600;
-    }
-
     /* ─── SCROLLBAR ─────────────────────────────────────────────── */
     ::-webkit-scrollbar { width:4px; }
     ::-webkit-scrollbar-track { background:var(--bg); }
@@ -436,6 +371,10 @@
 </head>
 <body>
 
+  <!-- Custom Cursor -->
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
   <!-- Animated BG canvas -->
   <canvas id="bg-canvas"></canvas>
 
@@ -448,7 +387,6 @@
       <li><a href="#skills">Skills</a></li>
       <li><a href="#projects">Projects</a></li>
       <li><a href="#contact">Contact</a></li>
-      <li><a href="Mahmoud_Abd_Elsattar_Enterprise_Architect.pdf" target="_blank" class="nav-cv">My CV ↗</a></li>
     </ul>
   </nav>
 
@@ -635,52 +573,11 @@
         Always open to discussing enterprise architecture, cloud strategy,
         or new opportunities. Let's build something remarkable together.
       </p>
-      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;">
-        <button class="btn-primary" id="openContactModal">Say Hello →</button>
-        <a href="https://www.linkedin.com/in/mahmoud-abd-elsamee/" target="_blank" class="btn-outline" style="border-color:rgba(0,119,181,0.5);color:#0a66c2;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-          LinkedIn
-        </a>
-        <a href="Mahmoud_Abd_Elsattar_Enterprise_Architect.pdf" target="_blank" class="btn-outline">
-          📄 My CV
-        </a>
-      </div>
+      <a href="mailto:your.email@example.com" class="btn-primary" style="display:inline-flex;">
+        Say Hello →
+      </a>
     </div>
   </section>
-
-  <!-- ── CONTACT MODAL ─────────────────────────────────────────── -->
-  <div class="modal-overlay" id="contactModal">
-    <div class="modal">
-      <button class="modal-close" id="modalClose">✕</button>
-      <div class="modal-title">Say Hello 👋</div>
-      <div class="modal-sub">mahmoud.abdelsattar.eng@gmail.com</div>
-      <div id="contactForm">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Your Name</label>
-            <input type="text" id="senderName" placeholder="John Doe" />
-          </div>
-          <div class="form-group">
-            <label>Your Email</label>
-            <input type="email" id="senderEmail" placeholder="john@example.com" />
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Subject</label>
-          <input type="text" id="msgSubject" placeholder="Architecture consultation…" />
-        </div>
-        <div class="form-group">
-          <label>Message</label>
-          <textarea id="msgBody" rows="5" placeholder="Tell me about your project…"></textarea>
-        </div>
-        <button class="form-submit" id="sendMailBtn">Send Message →</button>
-      </div>
-      <div class="form-success" id="formSuccess">
-        <div class="check">✅</div>
-        <p>Your mail client is ready!<br/>Hit send to deliver your message.</p>
-      </div>
-    </div>
-  </div>
 
   <footer>
     <p>Designed & Built for Mahmoud AbdElsattar &copy; 2026 — Cairo, Egypt</p>
@@ -688,6 +585,29 @@
 
   <!-- ── SCRIPTS ───────────────────────────────────────────────────── -->
   <script>
+    /* ── Cursor ── */
+    const cur = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-ring');
+    let mx=0, my=0, rx=0, ry=0;
+    document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+    function animCursor(){
+      rx += (mx-rx)*0.12; ry += (my-ry)*0.12;
+      cur.style.left = mx+'px'; cur.style.top = my+'px';
+      ring.style.left = rx+'px'; ring.style.top = ry+'px';
+      requestAnimationFrame(animCursor);
+    }
+    animCursor();
+    document.querySelectorAll('a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cur.style.width='20px'; cur.style.height='20px';
+        ring.style.width='60px'; ring.style.height='60px';
+      });
+      el.addEventListener('mouseleave', () => {
+        cur.style.width='12px'; cur.style.height='12px';
+        ring.style.width='40px'; ring.style.height='40px';
+      });
+    });
+
     /* ── Canvas BG — Grid with floating dots ── */
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
@@ -766,45 +686,6 @@
     /* ── Stagger reveals ── */
     document.querySelectorAll('.tl-item, .skill-card, .project-card').forEach((el,i)=>{
       el.style.transitionDelay = (i*0.1)+'s';
-    });
-
-    /* ── Contact Modal ── */
-    const modal     = document.getElementById('contactModal');
-    const openBtn   = document.getElementById('openContactModal');
-    const closeBtn  = document.getElementById('modalClose');
-    const sendBtn   = document.getElementById('sendMailBtn');
-    const formDiv   = document.getElementById('contactForm');
-    const successDiv= document.getElementById('formSuccess');
-
-    function openModal(){ modal.classList.add('open'); document.body.style.overflow='hidden'; }
-    function closeModal(){ modal.classList.remove('open'); document.body.style.overflow=''; }
-
-    openBtn.addEventListener('click', openModal);
-    closeBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', e => { if(e.target===modal) closeModal(); });
-    document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
-
-    sendBtn.addEventListener('click', () => {
-      const name    = document.getElementById('senderName').value.trim();
-      const email   = document.getElementById('senderEmail').value.trim();
-      const subject = document.getElementById('msgSubject').value.trim();
-      const body    = document.getElementById('msgBody').value.trim();
-      if(!name || !email || !subject || !body){
-        sendBtn.textContent='Please fill all fields ✕';
-        sendBtn.style.background='#ef4444';
-        setTimeout(()=>{ sendBtn.textContent='Send Message →'; sendBtn.style.background=''; }, 2000);
-        return;
-      }
-      const mailto = `mailto:mahmoud.abdelsattar.eng@gmail.com`
-        + `?subject=${encodeURIComponent('[Portfolio] '+subject)}`
-        + `&body=${encodeURIComponent('From: '+name+' <'+email+'>\n\n'+body)}`;
-      window.location.href = mailto;
-      formDiv.style.display='none';
-      successDiv.style.display='block';
-      setTimeout(()=>{
-        closeModal();
-        setTimeout(()=>{ formDiv.style.display=''; successDiv.style.display='none'; },400);
-      }, 3000);
     });
   </script>
 </body>
